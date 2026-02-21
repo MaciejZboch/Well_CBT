@@ -57,6 +57,18 @@ export const formatDateToMonthAndDay = (timestamp: Date): string => {
   return `${day} ${month}`; // Combine the day and month
 };
 
+export const formatDateToMonthNumAndYear = (
+  timestamp: Date,
+  spaceChar: string = " ",
+): string => {
+  const date = new Date(timestamp); // Parse the timestamp
+  const year = date.getFullYear(); // Get the day of the month
+  const monthNum = date.getMonth() + 1;
+  const month = numToString_addZero(monthNum);
+
+  return `${month}${spaceChar}${String(year)}`; // Combine the day and month
+};
+
 export const getLastVisitString = (lastVisitDate: Date | undefined): string => {
   const { t } = useTranslation("common");
 

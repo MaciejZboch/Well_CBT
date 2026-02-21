@@ -1,6 +1,6 @@
-import { Alert } from 'react-native';
-import { dbPromise } from '@/services/db';
-import { getTranslation } from '@/utils/locales';
+import { Alert } from "react-native";
+import { dbPromise } from "@/services/db";
+import { getTranslation } from "@/utils/locales";
 
 export type UserSettingsDataObj = {
   exerciseAutoSaveIsActive: number;

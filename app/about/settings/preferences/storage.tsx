@@ -16,6 +16,11 @@ import {
   UserSettingsDataObj,
 } from "@/db/settings";
 import { MaterialIcons } from "@expo/vector-icons";
+import * as FileSystem from "expo-file-system";
+import * as Sharing from "expo-sharing";
+import { DB_NAME, dbPromise } from "@/services/db";
+import { SQLiteDatabase } from "expo-sqlite";
+import { formatDateToMonthNumAndYear } from "@/utils/dates";
 
 const SETTING_NAME = "storage";
 
@@ -28,6 +33,36 @@ const StorageSettingsPage = () => {
 
   const handleSaveSettings = async () => {
     await handleSetExerciseAutoSaveIsActive(enableExerciseAutoSave);
+  };
+
+  const exportDB = async () => {
+    const date = new Date();
+    const backupName =
+      "WorryFree_DataBackup_" + formatDateToMonthNumAndYear(date, "_");
+
+    try {
+      const db = await dbPromise;
+      await db.execAsync("PRAGMA wal_checkpoint(FULL)"); // headlog checkpoint - to prevent losing changes currently in general file
+      const appPath: string | null = FileSystem.documentDirectory;
+      const dbPath = `${appPath}/SQLite/${DB_NAME}`;
+      const exportPath = `${appPath}/SQLite/${backupName}`;
+
+      await FileSystem.copyAsync({
+        from: dbPath,
+        to: exportPath,
+      });
+
+      await Sharing.shareAsync(exportPath, {
+        mimeType: "appication/x-sqlite3",
+      });
+      await FileSystem.deleteAsync(exportPath, { idempotent: true });
+    } catch (err) {
+      console.error("Failed to export \n", err);
+    }
+  };
+
+  const importDB = () => {
+    console.log("importing");
   };
 
   const handlePressDeleteAllData = () => {
@@ -114,6 +149,12 @@ const StorageSettingsPage = () => {
           </View>
         </View>
         <DividerLine width={SCREEN_WIDTH * 0.5} />
+        {/* Export/Import */}
+        <View className="flex w-full items-center justify-center gap-4">
+          <Text> Export/Import</Text>
+          <AdvanceButton title="Export" onPress={() => exportDB()} />
+          <AdvanceButton title="Import" onPress={() => importDB()} />
+        </View>
         {/* Delete all data */}
         <View className="mt-10">
           <Text className="text-xl">
