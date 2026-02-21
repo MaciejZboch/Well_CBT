@@ -19,8 +19,8 @@ import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
 import { DB_NAME, dbPromise } from "@/services/db";
-import { SQLiteDatabase } from "expo-sqlite";
 import { formatDateToMonthNumAndYear } from "@/utils/dates";
+import * as DocumentPicker from "expo-document-picker";
 
 const SETTING_NAME = "storage";
 
@@ -61,8 +61,44 @@ const StorageSettingsPage = () => {
     }
   };
 
-  const importDB = () => {
-    console.log("importing");
+  const importDB = async () => {
+    const db = await dbPromise;
+    const appPath: string | null = FileSystem.documentDirectory;
+    const dbPath = `${appPath}/SQLite/${DB_NAME}`;
+
+    try {
+      const result: DocumentPicker.DocumentPickerResult =
+        await DocumentPicker.getDocumentAsync({
+          type: "*/*", //allow all types - otherwise errors will happen, I am told
+          copyToCacheDirectory: true,
+          multiple: false,
+        });
+
+      if (result.canceled) {
+        return;
+      }
+
+      const backupPath: string = result.assets[0].uri;
+
+      if (!(await FileSystem.getInfoAsync(backupPath)).exists) {
+        throw Error("The document doesn't exist.");
+      }
+
+      await db.execAsync("PRAGMA wal_checkpoint(FULL)"); // headlog checkpoint - to prevent losing changes currently in general file
+      await db.closeAsync();
+      FileSystem.deleteAsync(`${dbPath}-wal`, { idempotent: true });
+      FileSystem.deleteAsync(`${dbPath}-shm`, { idempotent: true });
+
+      await FileSystem.copyAsync({
+        from: backupPath,
+        to: dbPath,
+      });
+      //MAKE SURE backup file is actual backupfile to not wreck the app, smh
+
+      reloadAppAsync();
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handlePressDeleteAllData = () => {
