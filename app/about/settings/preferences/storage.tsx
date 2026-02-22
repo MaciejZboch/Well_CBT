@@ -18,6 +18,7 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import * as FileSystem from "expo-file-system";
 import * as Sharing from "expo-sharing";
+import * as SQLite from "expo-sqlite";
 import { DB_NAME, dbPromise } from "@/services/db";
 import { formatDateToMonthNumAndYear } from "@/utils/dates";
 import * as DocumentPicker from "expo-document-picker";
@@ -53,8 +54,9 @@ const StorageSettingsPage = () => {
       });
 
       await Sharing.shareAsync(exportPath, {
-        mimeType: "appication/x-sqlite3",
+        mimeType: "application/x-sqlite3",
       });
+
       await FileSystem.deleteAsync(exportPath, { idempotent: true });
     } catch (err) {
       console.error("Failed to export \n", err);
@@ -62,42 +64,93 @@ const StorageSettingsPage = () => {
   };
 
   const importDB = async () => {
+    const validateWorryFreeDBFile = async (db: any) => {
+      const REQUIRED_TABLES = [
+        "userData",
+        "userSettings",
+        "seenOnboarding",
+        "journalEntries",
+      ];
+
+      // Integrity check
+      const integrity = await db.getFirstAsync("PRAGMA integrity_check;");
+      if (!integrity || integrity.integrity_check !== "ok") {
+        throw new Error("Invalid WorryFree datafile.");
+      }
+
+      // Table fingerprint validation
+      const tables = await db.getAllAsync(
+        `SELECT name FROM sqlite_master WHERE type='table';`,
+      );
+
+      const tableNames = tables.map((t: any) => t.name);
+
+      for (const table of REQUIRED_TABLES) {
+        if (!tableNames.includes(table)) {
+          throw new Error(`Missing required table: ${table}`);
+        }
+      }
+
+      return true;
+    };
+
     const db = await dbPromise;
-    const appPath: string | null = FileSystem.documentDirectory;
+    const appPath = FileSystem.documentDirectory!;
     const dbPath = `${appPath}/SQLite/${DB_NAME}`;
+    const tempName = "temp_import.db";
+    const tempPath = `${appPath}/SQLite/${tempName}`;
 
     try {
       const result: DocumentPicker.DocumentPickerResult =
         await DocumentPicker.getDocumentAsync({
-          type: "*/*", //allow all types - otherwise errors will happen, I am told
+          type: "*/*", //allow all types - otherwise fb files can't be picked
           copyToCacheDirectory: true,
           multiple: false,
         });
 
-      if (result.canceled) {
-        return;
+      if (result.canceled) return;
+
+      const backupPath = result.assets[0].uri;
+
+      const fileInfo = await FileSystem.getInfoAsync(backupPath);
+      if (!fileInfo.exists) {
+        throw new Error("Selected file does not exist.");
       }
 
-      const backupPath: string = result.assets[0].uri;
-
-      if (!(await FileSystem.getInfoAsync(backupPath)).exists) {
-        throw Error("The document doesn't exist.");
-      }
-
-      await db.execAsync("PRAGMA wal_checkpoint(FULL)"); // headlog checkpoint - to prevent losing changes currently in general file
-      await db.closeAsync();
-      FileSystem.deleteAsync(`${dbPath}-wal`, { idempotent: true });
-      FileSystem.deleteAsync(`${dbPath}-shm`, { idempotent: true });
-
+      // Copy to temp DB first
       await FileSystem.copyAsync({
         from: backupPath,
+        to: tempPath,
+      });
+
+      // Open temp DB
+      const tempDb = await SQLite.openDatabaseAsync(tempName);
+
+      // Validate
+      await validateWorryFreeDBFile(tempDb);
+      await tempDb.closeAsync();
+
+      // Safe replace
+      await db.execAsync("PRAGMA wal_checkpoint(FULL)"); // ensure latest db file has all changes
+      await db.closeAsync();
+
+      await FileSystem.deleteAsync(`${dbPath}-wal`, { idempotent: true });
+      await FileSystem.deleteAsync(`${dbPath}-shm`, { idempotent: true });
+
+      await FileSystem.copyAsync({
+        from: tempPath,
         to: dbPath,
       });
-      //MAKE SURE backup file is actual backupfile to not wreck the app, smh
+
+      // Alert success
+      Alert.alert("Data successfully restored");
 
       reloadAppAsync();
     } catch (err) {
-      console.error(err);
+      console.error("Import failed:", err);
+      Alert.alert(t("alerts.error"), "Invalid WorryFree data file.");
+    } finally {
+      await FileSystem.deleteAsync(tempPath, { idempotent: true });
     }
   };
 
@@ -115,7 +168,6 @@ const StorageSettingsPage = () => {
         },
         {
           text: t(`settings.${SETTING_NAME}.remove_all_alert.no`),
-
           onPress: () => {
             router.back();
           },
@@ -163,7 +215,6 @@ const StorageSettingsPage = () => {
         }}
       />
       <View className="m-4">
-        {/* Auto-save exercises */}
         <View className="mb-10 mt-10">
           <Text className="text-xl">
             {t(`settings.${SETTING_NAME}.exercises`)}
