@@ -40,16 +40,17 @@
   },
     "export_import": {
     "title": "Eksport i import danych",
-    "description": "W WorryFree przykładamy najwyższą wagę do Twojej prywatności. Dlatego to Ty masz pełną kontrolę nad Twoimi danymi. Na tym ekranie możesz wyeksportować zapisane informacje lub wgrać dane, które zostały wcześniej wyeksportowane.",    
+    "titleShort": "Eksport/Import",
+    "description": "W WorryFree przykładamy najwyższą wagę do Twojej prywatności. Dlatego to Ty masz <bold>pełną kontrolę</bold> nad Twoimi danymi. Na tym ekranie możesz <bold>wyeksportować zapisane informacje</bold> lub wgrać dane, które zostały wcześniej wyeksportowane.",    
     "export": {
       "header": "Eksport",
-      "body": "Po kliknięciu w przycisk Eksportuj dane otrzymasz plik, którego potem będziesz mógł użyć, żeby odzyskać zapisane postępy.",
+      "body": "Po kliknięciu w przycisk <bold>Eksportuj dane</bold> otrzymasz plik, którego potem będziesz mógł użyć, żeby odzyskać zapisane postępy.",
       "button": "Eksportuj dane"
     },
     "import": {
       "header": "Import",
-      "body": "Import pozwala przywrócić zapisane postępy, korzystając z pliku danych WorryFree. Po kliknięciu w przycisk Importuj dane zostaniesz poproszony/a o podanie pliku z zapisanymi danymi aplikacji WorryFree.",
-      "button": "Eksportuj dane"
+      "body": "Import pozwala przywrócić zapisane postępy, korzystając z pliku danych WorryFree. Po kliknięciu w przycisk <bold>Importuj dane</bold> zostaniesz poproszony/a o podanie pliku z zapisanymi danymi aplikacji WorryFree.",
+      "button": "Importuj dane"
     }
   },
 

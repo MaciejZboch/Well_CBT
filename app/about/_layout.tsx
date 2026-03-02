@@ -4,6 +4,7 @@ import React from 'react';
 const AboutLayout = () => {
   return (
     <Stack>
+      <Stack.Screen name="exportImport" options={{ headerShown: false }} />
       <Stack.Screen name="settings" options={{ headerShown: false }} />
       <Stack.Screen
         name="achievements/index"
