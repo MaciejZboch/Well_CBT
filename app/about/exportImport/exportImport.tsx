@@ -1,5 +1,3 @@
-import * as Device from "expo-device";
-import { Href, router } from "expo-router";
 import React, { ReactNode } from "react";
 import { Trans, useTranslation } from "react-i18next";
 import { TouchableOpacity, View } from "react-native";
@@ -11,6 +9,7 @@ import { Colors } from "@/constants/styles/colorTheme";
 import { MaterialIcons } from "@expo/vector-icons";
 import AdvanceButton from "@/components/global/AdvanceButton";
 import { SCREEN_WIDTH } from "@/constants/styles/values";
+import AntDesign from '@expo/vector-icons/AntDesign';
 
 type ExportImportItem = {
   body: string;
@@ -42,7 +41,7 @@ const Index = () => {
               borderRadius: 12,
             }}
             onPress={() => {}}
-            icon={<MaterialIcons name="upload" size={24} color="white" />}
+            icon={<AntDesign name="export" size={24} color="white" />}
           />
         ),
       },
@@ -66,7 +65,7 @@ const Index = () => {
               borderRadius: 12,
             }}
             onPress={() => {}}
-            icon={<MaterialIcons name="download" size={24} color="white" />}
+            icon={<AntDesign name="export2" size={24} color="white" />}
           />
         ),
       },
@@ -85,7 +84,6 @@ const Index = () => {
         >
           {t(`export_import.title`)}
         </Text>
-
         <Text className="text-lg mb-8 w-full text-left" style={{fontSize: 14, fontWeight: 400, color: "#757575"}}>
         <Trans
         default={t(`export_import.description`)}

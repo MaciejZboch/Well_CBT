@@ -1,9 +1,11 @@
-import { Stack } from "expo-router";
-import React from "react";
+import { Stack } from 'expo-router';
+import React from 'react';
 
 const ExportImportLayout = () => {
   return (
-    <Stack screenOptions={{ headerShown: false }} />
+    <Stack>
+      <Stack.Screen name="exportImport" options={{ headerShown: false }} />
+    </Stack>
   );
 };
 
