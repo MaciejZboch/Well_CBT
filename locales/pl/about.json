@@ -51,6 +51,12 @@
       "header": "Import",
       "body": "Import pozwala przywrócić zapisane postępy, korzystając z pliku danych WorryFree. Po kliknięciu w przycisk <bold>Importuj dane</bold> zostaniesz poproszony/a o podanie pliku z zapisanymi danymi aplikacji WorryFree.",
       "button": "Importuj dane"
+    },
+    "modal": {
+      "header": "Czy chcesz kontynuować?",
+      "continue": "Kontynuuj",
+      "back": "Wróć",
+      "body": "Obecnie istniejące dane zostaną nadpisane przez import. \n \n Jeśli chcesz kontynuować, naciśnij przycisk <bold>Kontynuuj</bold>."
     }
   },
 

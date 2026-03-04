@@ -1,15 +1,16 @@
-import React, { ReactNode } from "react";
+import React, { ReactNode, useState } from "react";
 import { Trans, useTranslation } from "react-i18next";
-import { TouchableOpacity, View } from "react-native";
+import { View } from "react-native";
 import { ScrollView } from "react-native-gesture-handler";
 import DividerLine from "@/components/global/DividerLine";
 import MenuNav from "@/components/global/MenuNav";
 import Text from "@/components/global/Text";
 import { Colors } from "@/constants/styles/colorTheme";
-import { MaterialIcons } from "@expo/vector-icons";
 import AdvanceButton from "@/components/global/AdvanceButton";
 import { SCREEN_WIDTH } from "@/constants/styles/values";
-import AntDesign from '@expo/vector-icons/AntDesign';
+import AntDesign from "@expo/vector-icons/AntDesign";
+import { Modal } from "react-native";
+import { MaterialIcons } from "@expo/vector-icons";
 
 type ExportImportItem = {
   body: string;
@@ -23,6 +24,7 @@ type ExportImportCategory = {
 
 const Index = () => {
   const { t } = useTranslation(["about", "common"]);
+  const [importModalVisible, setImportModalVisible] = useState(false);
 
   const exportObj: ExportImportCategory = {
     title: t(`export_import.export.header`),
@@ -36,8 +38,6 @@ const Index = () => {
               width: 216,
               height: 45,
               backgroundColor: "#81C784",
-              borderWidth: 1,
-              borderColor: Colors.lightGray,
               borderRadius: 12,
             }}
             onPress={() => {}}
@@ -60,11 +60,9 @@ const Index = () => {
               width: 216,
               height: 45,
               backgroundColor: "#FFD54F",
-              borderWidth: 1,
-              borderColor: Colors.lightGray,
               borderRadius: 12,
             }}
-            onPress={() => {}}
+            onPress={() => setImportModalVisible(true)}
             icon={<AntDesign name="export2" size={24} color="white" />}
           />
         ),
@@ -84,16 +82,17 @@ const Index = () => {
         >
           {t(`export_import.title`)}
         </Text>
-        <Text className="text-lg mb-8 w-full text-left" style={{fontSize: 14, fontWeight: 400, color: "#757575"}}>
-        <Trans
-        default={t(`export_import.description`)}
-        ns="learn"
-          components={{
-            bold: <Text style={{ fontWeight: 700 }} />,
-          }}
+        <Text
+          className="mb-8 w-full text-left text-lg"
+          style={{ fontSize: 14, fontWeight: 400, color: "#757575" }}
         >
-          {t(`export_import.description`)}
-        </Trans>
+          <Trans
+            components={{
+              bold: <Text style={{ fontWeight: 700 }} />,
+            }}
+          >
+            {t(`export_import.description`)}
+          </Trans>
         </Text>
 
         <DividerLine width={SCREEN_WIDTH * 0.33} />
@@ -109,16 +108,13 @@ const Index = () => {
                   fontWeight: "700",
                 }}
               >
-                        <Trans
-        default={t(`export_import.description`)}
-        ns="learn"
-          components={{
-            bold: <Text style={{ fontWeight: 700 }} />,
-          }}
-        >
-           {segment.title}
-        </Trans>
-               
+                <Trans
+                  components={{
+                    bold: <Text style={{ fontWeight: 700 }} />,
+                  }}
+                >
+                  {segment.title}
+                </Trans>
               </Text>
 
               <View className="w-full">
@@ -129,20 +125,16 @@ const Index = () => {
                         className="mb-4 w-full text-left"
                         style={{ fontSize: 14, weight: 400 }}
                       >
-                                                <Trans
-        default={t(`export_import.description`)}
-        ns="learn"
-          components={{
-            bold: <Text style={{ fontWeight: 700 }} />,
-          }}
-        >
-           {item.body}
-        </Trans>
+                        <Trans
+                          components={{
+                            bold: <Text style={{ fontWeight: 700 }} />,
+                          }}
+                        >
+                          {item.body}
+                        </Trans>
                       </Text>
 
-                      <View className="items-center">
-                        {item.button}
-                      </View>
+                      <View className="items-center">{item.button}</View>
                     </View>
                   </React.Fragment>
                 ))}
@@ -151,6 +143,81 @@ const Index = () => {
           ))}
         </View>
       </View>
+      <Modal
+        visible={importModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setImportModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "rgba(0,0,0,0.4)",
+            justifyContent: "center",
+            padding: 24,
+          }}
+        >
+          <View
+            style={{
+              width: "80%",
+              maxWidth: 340,
+              alignSelf: "center",
+              backgroundColor: "white",
+              borderRadius: 16,
+              paddingVertical: 28,
+              paddingHorizontal: 20,
+            }}
+          >
+            <Text
+              className="mb-2 mt-2 text-center text-xl"
+              style={{ fontSize: 20, color: Colors.red, fontWeight: 700 }}
+            >
+              {t(`export_import.modal.header`)}
+            </Text>
+
+            <Text className="mx-2 text-center">
+              <Trans
+                components={{
+                  bold: <Text style={{ fontWeight: 700 }} />,
+                }}
+              >
+                {t(`export_import.modal.body`)}
+              </Trans>
+            </Text>
+
+            <View className="mt-6 items-center">
+              <AdvanceButton
+                title={t(`export_import.modal.continue`)}
+                onPress={() => {
+                  setImportModalVisible(false);
+                }}
+                btnStyle={{
+                  backgroundColor: "#D46A6A",
+                  width: 216,
+                  height: 45,
+                  borderRadius: 12,
+                  marginBottom: 16,
+                }}
+                icon={<MaterialIcons name="save" size={24} color="white" />}
+              />
+
+              <AdvanceButton
+                title={t(`export_import.modal.back`)}
+                onPress={() => {
+                  setImportModalVisible(false);
+                }}
+                btnStyle={{
+                  backgroundColor: "#81C784",
+                  width: 216,
+                  height: 45,
+                  borderRadius: 12,
+                }}
+                icon={<MaterialIcons name="undo" size={24} color="white" />}
+              />
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   );
 };
